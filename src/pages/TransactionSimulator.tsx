@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,11 +25,47 @@ import {
   Smartphone,
   Globe,
 } from "lucide-react";
-import { Transaction, generateRandomTransaction, mockTransactions } from "@/data/mockData";
 import { toast } from "@/hooks/use-toast";
+import { apiGet } from "@/lib/api";
+
+interface Transaction {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  amount: number;
+  location: string;
+  deviceId: string;
+  ipAddress: string;
+  timestamp: string | Date;
+  status: "normal" | "fraud";
+  riskScore: number;
+}
+
+const generateRandomTransaction = (isFraud: boolean): Transaction => {
+  const locations = isFraud
+    ? ["Lagos, NG", "Moscow, RU", "Unknown", "Pyongyang, KP"]
+    : ["New York, US", "London, UK", "Tokyo, JP", "Berlin, DE", "Sydney, AU"];
+
+  const id = `TXN-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  const senderId = `ACC-${Math.floor(Math.random() * 9000 + 1000)}`;
+  const receiverId = `ACC-${Math.floor(Math.random() * 9000 + 1000)}`;
+
+  return {
+    id,
+    senderId,
+    receiverId,
+    amount: isFraud ? Math.floor(Math.random() * 50000 + 10000) : Math.floor(Math.random() * 5000 + 100),
+    location: locations[Math.floor(Math.random() * locations.length)],
+    deviceId: isFraud ? "DEV-SUSP01" : `DEV-${Math.random().toString(36).substr(2, 4).toUpperCase()}`,
+    ipAddress: isFraud ? "10.0.0.55" : `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
+    timestamp: new Date(),
+    status: isFraud ? "fraud" : "normal",
+    riskScore: isFraud ? Math.floor(Math.random() * 30 + 70) : Math.floor(Math.random() * 30),
+  };
+};
 
 const TransactionSimulator = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [formData, setFormData] = useState({
     senderId: "",
     receiverId: "",
@@ -38,6 +74,27 @@ const TransactionSimulator = () => {
     deviceId: "",
     ipAddress: "",
   });
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const txs = await apiGet<Transaction[]>("/api/transactions");
+        if (cancelled) return;
+        setTransactions(txs);
+      } catch {
+        toast({
+          title: "Backend Unavailable",
+          description: "Could not load initial transactions from the API.",
+          variant: "destructive",
+        });
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { RiskMeter } from "@/components/RiskMeter";
 import { Button } from "@/components/ui/button";
@@ -19,15 +19,34 @@ import {
   ShieldAlert,
   CheckCircle,
 } from "lucide-react";
-import { mockTransactions, riskFactors } from "@/data/mockData";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { apiGet } from "@/lib/api";
+
+interface Transaction {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  amount: number;
+  location: string;
+  deviceId: string;
+  ipAddress: string;
+  timestamp: string;
+  status: "normal" | "fraud";
+  riskScore: number;
+}
+
+interface RiskFactor {
+  factor: string;
+  severity: "low" | "medium" | "high";
+  score: number;
+}
 
 interface RiskResult {
   id: string;
   type: "transaction" | "account";
   score: number;
-  factors: typeof riskFactors;
+  factors: RiskFactor[];
   details: {
     linkedFraudAccounts: number;
     abnormalAmount: boolean;
@@ -41,6 +60,37 @@ const RiskScoring = () => {
   const [searchId, setSearchId] = useState("");
   const [result, setResult] = useState<RiskResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [riskFactors, setRiskFactors] = useState<RiskFactor[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const [txs, factors] = await Promise.all([
+          apiGet<Transaction[]>("/api/transactions"),
+          apiGet<RiskFactor[]>("/api/risk-factors"),
+        ]);
+        if (cancelled) return;
+        setTransactions(txs);
+        setRiskFactors(factors);
+      } catch (e) {
+        toast({
+          title: "Backend Unavailable",
+          description: "Could not load risk data from the API.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const riskFactorPool = useMemo(() => riskFactors, [riskFactors]);
 
   const evaluateRisk = () => {
     if (!searchId.trim()) {
@@ -54,10 +104,10 @@ const RiskScoring = () => {
 
     setIsLoading(true);
 
-    // Simulate API call
+    // Local evaluation using API-fetched data
     setTimeout(() => {
       const isTransaction = searchId.toUpperCase().startsWith("TXN");
-      const foundTx = mockTransactions.find(
+      const foundTx = transactions.find(
         (tx) =>
           tx.id.toUpperCase() === searchId.toUpperCase() ||
           tx.senderId.toUpperCase() === searchId.toUpperCase()
@@ -71,7 +121,7 @@ const RiskScoring = () => {
           id: searchId.toUpperCase(),
           type: isTransaction ? "transaction" : "account",
           score,
-          factors: riskFactors.filter(() => Math.random() > 0.3),
+          factors: riskFactorPool.filter(() => Math.random() > 0.3),
           details: {
             linkedFraudAccounts: isFraud ? Math.floor(Math.random() * 3 + 1) : 0,
             abnormalAmount: isFraud && Math.random() > 0.5,

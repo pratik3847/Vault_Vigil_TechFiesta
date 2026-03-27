@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { RiskMeter } from "@/components/RiskMeter";
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,14 @@ import {
   Lightbulb,
   FileText,
 } from "lucide-react";
-import { mockTransactions } from "@/data/mockData";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { apiGet } from "@/lib/api";
+
+interface Transaction {
+  id: string;
+  status: "normal" | "fraud";
+}
 
 type DecisionType = "transaction" | "link";
 
@@ -133,6 +138,28 @@ const DecisionEngine = () => {
   const [linkUrl, setLinkUrl] = useState("");
   const [decision, setDecision] = useState<Decision | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const txs = await apiGet<Transaction[]>("/api/transactions");
+        if (cancelled) return;
+        setTransactions(txs);
+      } catch {
+        toast({
+          title: "Backend Unavailable",
+          description: "Could not load transactions from the API.",
+          variant: "destructive",
+        });
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const evaluateDecision = () => {
     if (decisionType === "transaction") {
@@ -148,7 +175,7 @@ const DecisionEngine = () => {
       setIsLoading(true);
 
       setTimeout(() => {
-        const foundTx = mockTransactions.find(
+        const foundTx = transactions.find(
           (tx) => tx.id.toUpperCase() === transactionId.toUpperCase()
         );
 
