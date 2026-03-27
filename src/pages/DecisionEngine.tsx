@@ -313,8 +313,8 @@ const DecisionEngine = () => {
         <div className="glass-card p-6 mb-8">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">Frontend-only Prototype</Badge>
-              <Badge variant="outline">Simulated AI Logic</Badge>
+              {/* <Badge variant="secondary">Frontend-only Prototype</Badge>
+              <Badge variant="outline">Simulated AI Logic</Badge> */}
             </div>
           </div>
 

@@ -428,8 +428,7 @@ const FraudAnalysis = () => {
             Visualize account networks and detect suspicious connection patterns.
           </p>
           <div className="flex flex-wrap items-center gap-2 mt-3">
-            <Badge variant="secondary">Frontend-only Prototype</Badge>
-            <Badge variant="outline">Simulated AI Logic</Badge>
+           
           </div>
           <p className="text-xs text-muted-foreground mt-2">
             Flow: Input 3 Analysis 3 Risk Scoring 3 Decision 3 Explanation
@@ -459,8 +458,7 @@ const FraudAnalysis = () => {
                     Frontend-only prototype. Add relationships to generate the graph and compute a Link Risk Score.
                   </CardDescription>
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="secondary">Frontend-only Prototype</Badge>
-                    <Badge variant="outline">Simulated AI Logic</Badge>
+                  
                   </div>
                 </CardHeader>
                 <CardContent>

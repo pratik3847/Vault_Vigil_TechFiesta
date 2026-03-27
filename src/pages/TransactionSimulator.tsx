@@ -113,8 +113,8 @@ const TransactionSimulator = () => {
             Generate and analyze transaction patterns to test fraud detection capabilities.
           </p>
           <div className="flex flex-wrap items-center gap-2 mt-3">
-            <Badge variant="secondary">Frontend-only Prototype</Badge>
-            <Badge variant="outline">Simulated AI Logic</Badge>
+            
+            {/* <Badge variant="outline">Simulated AI Logic</Badge> */}
           </div>
           <p className="text-xs text-muted-foreground mt-2">
             Flow: Input 3 Analysis 3 Risk Scoring 3 Decision 3 Explanation

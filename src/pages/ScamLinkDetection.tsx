@@ -270,8 +270,7 @@ const ScamLinkDetection = () => {
                   <h2 className="text-lg font-semibold">Input</h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="secondary">Frontend-only Prototype</Badge>
-                  <Badge variant="outline">Simulated AI Logic</Badge>
+                  
                 </div>
               </div>
 

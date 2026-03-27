@@ -283,7 +283,7 @@ const Index = () => {
               <span className="font-semibold">FraudGuard</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 FraudGuard. AI-Powered Fraud Detection.
+              FraudGuard. AI-Powered Fraud Detection.
             </p>
           </div>
         </div>
