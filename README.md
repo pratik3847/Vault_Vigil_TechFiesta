@@ -110,7 +110,7 @@ This application serves multiple purposes:
 
 ## 🏗️ System Architecture
 
-Guardian AI Dashboard is a **frontend-only prototype** that demonstrates two distinct use cases with the same conceptual flow:
+Guardian AI Dashboard is a **full-stack application** powered by a **React frontend** and a **FastAPI backend**. It demonstrates two distinct use cases with the same conceptual flow:
 
 **Input → Analysis → Risk Scoring → Decision → Explanation**
 
@@ -153,6 +153,11 @@ Guardian AI Dashboard is a **frontend-only prototype** that demonstrates two dis
 ---
 
 ## 🛠️ Technology Stack
+
+### Backend Framework
+- **FastAPI**: High-performance Python backend framework
+- **Uvicorn**: ASGI web server implementation for Python
+- **Python**: Core programming language for API and data processing
 
 ### Frontend Framework
 - **React 18.3**: Modern UI library with hooks and functional components
@@ -225,16 +230,31 @@ npm install
 # - React Hook Form, Zod, and other utilities
 ```
 
-### Step 3: Start Development Server
+### Step 3: Start the Backend (FastAPI)
 
 ```bash
-# Start Vite dev server (usually on http://localhost:5173)
+cd backend
+python -m venv .venv
+# On Windows: .venv\Scripts\Activate.ps1
+# On Mac/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
+The backend API will run on `http://localhost:8000`.
+
+### Step 4: Start the Frontend (Vite)
+
+Open a new terminal window in the root directory:
+```bash
+# Start Vite dev server
 npm run dev
 ```
 
-The application will automatically open in your default browser. If not, navigate to the URL shown in the terminal (usually `http://localhost:5173`).
+The application will automatically open in your default browser. 
 
-### Step 4: Build for Production
+---
+
+### Step 5: Build for Production
 
 ```bash
 # Create optimized production build
@@ -252,6 +272,10 @@ The production build will be created in the `dist/` directory.
 
 ```
 guardian-ai-dashboard-main/
+│
+├── backend/                         # FastAPI application
+│   ├── main.py                      # API routes and logic
+│   └── requirements.txt             # Python dependencies
 │
 ├── public/                          # Static assets
 │   ├── favicon.svg                  # Shield icon favicon
@@ -365,8 +389,8 @@ The page also contains feature cards and CTA buttons for deeper modules like net
 **Route**: `/simulator`
 
 **Prototype Labels**:
-- "Frontend-only Prototype"
-- "Simulated AI Logic"
+- "Full-Stack Application"
+- "Backend AI Logic"
 
 **Features**:
 
@@ -528,10 +552,10 @@ Selecting a node shows what it represents (account/device/ip) and highlights the
 **Route**: `/risk`
 
 **Prototype Labels**:
-- "Frontend-only Prototype"
-- "Simulated AI Logic"
+- "Full-Stack Application"
+- "Backend AI Logic"
 
-> Note: This page simulates an evaluation step; it does not call a backend.
+> Note: This page evaluates risk by calling the FastAPI backend.
 
 **Features**:
 
@@ -839,16 +863,14 @@ interface RiskFactor {
 
 ---
 
-## 🧪 Mock Data & Testing
+## 🧪 Data & API Integration
 
-### Mock Transactions ([mockData.ts](src/data/mockData.ts))
+The frontend now relies on the **FastAPI backend** for data instead of hardcoded mock data files. The API logic is located under `backend/main.py`.
 
-The system includes 5 pre-defined transactions:
-- **TXN-001**: Normal ($1,500) - Risk: 15
-- **TXN-002**: Fraud ($25,000) - Risk: 92
-- **TXN-003**: Normal ($3,200) - Risk: 22
-- **TXN-004**: Fraud ($8,500) - Risk: 88
-- **TXN-005**: Normal ($450) - Risk: 8
+### Dynamic API Endpoints
+- `GET /api/transactions` - Fetches historical and generated transactions
+- `GET /api/risk-factors` - Calculates current risk threshold factors
+- `GET /api/network-graph` - Loads account connection nodes and edges
 
 ### Network Data
 
@@ -1042,9 +1064,9 @@ test('generates normal transaction', () => {
 ## 🔮 Future Enhancements
 
 ### Backend Integration
-- [ ] Connect to real fraud detection API
+- [x] Connect to FastAPI backend
 - [ ] Implement user authentication and authorization
-- [ ] Store transactions in database (PostgreSQL/MongoDB)
+- [ ] Store transactions in persistent database (PostgreSQL/MongoDB)
 - [ ] Real-time WebSocket updates for fraud alerts
 
 ### Advanced ML Features
